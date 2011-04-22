@@ -57,21 +57,6 @@ class Fanzine
             }
           end
         }
-## old parser (without hpricot)
-#         open(@pageURI.to_s) {|f|
-#           f.each_line {|line|
-#             titleflag = true if /HR width.*color.*red/ =~ line
-#             titleflag = false if /<TABLE>/ =~ line
-#             urlflag = true if /CENTER.*MIDDLE/ =~ line
-#             titlelines << line if titleflag == true
-#             if urlflag == true 
-#               @urlarray << URI.parse(@pageURI.to_s + line.split(/\"/)[ 9 ])
-#               urlflag = false
-#             end
-#             titleflag = true if /\A<HR width.*>\Z/ =~ line.strip
-#           }
-#         }
-## old parser end
         break
       rescue Timeout::Error
         p "retry"
@@ -188,26 +173,6 @@ def getGenreURLs(mainURL)
       end
     end
   }
-## old parser (without hpricot)
-#   open(mainURL.to_s) {|f|
-#     f.each_line {|line|
-#       if /target.*menu/ =~ line
-#         while line.slice(URI.regexp) != nil
-#           sliced = line.slice(URI.regexp)
-#           if /sonota_/ =~ sliced
-#             open(sliced) {|ff|
-#               ff.each_line{|ll|
-#                 break if /\A<TR/ =~ ll
-#                 genreURLs << sliced.sub(/[^\/]+\Z/, '') + ll.split('"')[ 1 ] if /\A<TD/ =~ ll
-#               }
-#             }
-#           end
-#           genreURLs << URI.parse(line.slice!(URI.regexp))
-#         end
-#       end
-#     }
-#   }
-## old parser end
   genreURLs.uniq! # sonota_ の重複排除
   # genreURLs.each{|url| p url.to_s}
   return genreURLs
@@ -221,13 +186,6 @@ def getFanzineURLs(genreURL)
       fanzineURLs << URI.parse(elem.parent["href"]) 
     end
   }
-## old parser (without hpricot)
-#   open(genreURL.to_s) {|gf|
-#     gf.each_line{|line|
-#       fanzineURLs << URI.parse(line.slice(URI.regexp)) if /TD.*href.*IMG.*\.jpg/ =~ line
-#     }
-#   }
-## old parser end
   return fanzineURLs
 end
 
