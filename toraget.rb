@@ -35,42 +35,80 @@ def getInfo(item_id)
   doc = Nokogiri::HTML(open(pageURI.to_s, {'Cookie' => 'afg=0'}).read,
                        nil, "CP932")
   detail_main = doc.search('div.detail_main')
-  main_core = detail_main.children[3]
-  title_position = detail_main.children[1].children.size - 1
-  
-  info = {'title' => detail_main.children[1].children[title_position].text,
-          'circles' => 
-          {'name' => main_core.children[2].children[0].text,
-           'URI' => URI::Generic.build(
-             {:scheme => 'http',
-              :host => 'www.toranoana.jp',
-              :path => main_core.children[2].children[0][:href]})},
-          'authors' => # Array.new, 
-          {'name' => main_core.children[5].children[0].text,
-           'URI' => URI::Generic.build(
-             {:scheme => 'http',
-              :host => 'www.toranoana.jp',
-              :path => main_core.children[5].children[0][:href]})},
-          'genres' => # Array.new,
-          {'name' => main_core.children[8].children[0].text,
-           'URI' => URI::Generic.build(
-             {:scheme => 'http',
-              :host => 'www.toranoana.jp',
-              :path => main_core.children[8].children[0][:href]})},
-          'characters' => main_core.children[11].text, 
-          'issue_date' => Date.parse(main_core.children[14].text),
-          'book_type' => main_core.children[17].text.split('/')[0].strip,
-          'size' => main_core.children[17].text.split('/')[1].split(' ')[0],
-          'page' => main_core.children[17].text.split('/')[1].split(' ')[1],
-          'rating' => 'All ages',
-          'comment' => detail_main.children[5].children[3].text}
 
-  if main_core.children[20].children[0][:alt] =~ /18/
-    info['rating'] = 'Ages 18 and up only'
+  if detail_main[0] == nil
+    l = doc.search('td.DetailData_L').children
+    r = doc.search('td.DetailData_R').children
+
+    info = {'title' => doc.search('td.td_title_bar_r1c2').children[0].text,
+            'circles' =>
+            {'name' => doc.search('td.CircleName').children[1].text,
+             'URI' => URI::Generic.build(
+               {:scheme => 'http',
+                :host => 'www.toranoana.jp',
+                :path => doc.search('td.CircleName').children[1][:href]})},
+            'authors' =>
+            {'name' => l[3].text,
+             'URI' => URI::Generic.build(
+               {:scheme => 'http',
+                :host => 'www.toranoana.jp',
+                :path => l[3][:href]})},
+            'genres' =>
+            {'name' => l[6].text,
+             'URI' => URI::Generic.build(
+               {:scheme => 'http',
+                :host => 'www.toranoana.jp',
+                :path => l[6][:href]})},
+            'characters' => l[8].text, 
+            'issue_date' => Date.parse(r[1].text),
+            'book_type' => r[0].text,
+            'size' => r[2].text.split(' ')[0],
+            'page' => r[2].text.split(' ')[1],
+            'rating' => 'All ages',
+            'comment' => doc.search('td.DetailData_Comment').children[0].text
+           }
+    if r[3].text =~ /18/
+      info['rating'] = 'Ages 18 and up only'
+    end
+    
+  else 
+    m = detail_main.children[3].children
+    t = detail_main.children[1].children.size - 1
+
+    info = {'title' => detail_main.children[1].children[t].text,
+            'circles' => 
+            {'name' => m[2].children[0].text,
+             'URI' => URI::Generic.build(
+               {:scheme => 'http',
+                :host => 'www.toranoana.jp',
+                :path => m[2].children[0][:href]})},
+            'authors' => # Array.new, 
+            {'name' => m[5].children[0].text,
+             'URI' => URI::Generic.build(
+               {:scheme => 'http',
+                :host => 'www.toranoana.jp',
+                :path => m[5].children[0][:href]})},
+            'genres' => # Array.new,
+            {'name' => m[8].children[0].text,
+             'URI' => URI::Generic.build(
+               {:scheme => 'http',
+                :host => 'www.toranoana.jp',
+                :path => m[8].children[0][:href]})},
+            'characters' => m[11].text, 
+            'issue_date' => Date.parse(m[14].text),
+            'book_type' => m[17].text.split('/')[0].strip,
+            'size' => m[17].text.split('/')[1].split(' ')[0],
+            'page' => m[17].text.split('/')[1].split(' ')[1],
+            'rating' => 'All ages',
+            'comment' => detail_main.children[5].children[3].text}
+
+    if m[20].children[0][:alt] =~ /18/
+      info['rating'] = 'Ages 18 and up only'
+    end
   end
 
   addDB(item_id, info)
-  
+
   return info
 end
 
