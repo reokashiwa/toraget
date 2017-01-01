@@ -1,8 +1,6 @@
 Toraget
 ====
 
-Overview
-
 Toraget is scraping tools to get fanzine information from toranoana.jp (one of the biggest online shop of Japanese fanzine).
 
 ## Description
